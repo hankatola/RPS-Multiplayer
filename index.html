@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Rock Paper Scissors!</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel='stylesheet' type='text/css' href="assets/css/style.css">
+</head>
+<body>
+
+        <!-- Sign in -->
+    <div id='sign-in'>
+        <div class='container'>
+            <form>
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Enter your name</label>
+                    <input type="text" class="form-control" id="user-name" aria-describedby="nameHelp" placeholder="Enter your name">
+                    <small id="nameHelp" class="form-text text-muted">We'll never share your name with anyone else.</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>>
+
+    <!-- Header -->
+    <header class='bg-white rounded shadow-sm'>
+        <div class='container mx-auto'>
+            <h1>Rock Paper Scissors!</h1>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main role="main" class="container">
+
+        <!-- Game Section -->
+        <div class="my-3 p-3 bg-white rounded shadow-sm card">
+            <h6 class="border-bottom border-gray pb-2 mb-0">Play!</h6>
+
+            <!-- Play Card -->
+            <div class="card-group">
+
+                <!-- You -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title" id='name-player'>You</h5>
+                        <p class="card-text" id='won-player'>Won:</p>
+                        <p class="card-text" id='lost-player'>Lost:</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted" id='ready-player'>Have not picked</small>
+                    </div>
+                </div>
+
+                <!-- Pick RPS -->
+                <div class="card">
+                    <div class="card-body">
+                        <button type="button" class="btn btn-secondary btn-lg btn-block" id='rock'>Rock</button>
+                        <button type="button" class="btn btn-warning btn-lg btn-block" id='paper'>Paper</button>
+                        <button type="button" class="btn btn-danger btn-lg btn-block" id='scissors'>Scissors</button>
+                    </div>
+                </div>
+
+                <!-- Opponent -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title" id='name-opponent'>Your Opponent</h5>
+                        <p class="card-text" id='won-opponent'>Won:</p>
+                        <p class="card-text" id='lost-opponent'>Lost:</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted" id='ready-opponent'>Has not picked</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Chat Section -->
+        <div class="my-3 p-3 bg-white rounded shadow-sm card">
+            <h6 class="border-bottom border-gray pb-2 mb-0">Chat</h6>
+
+            <!-- Scrollable chat window -->
+            <div style="overflow-y: scroll; height:200px;" id='chat-window'>
+
+                <!-- Sample chat card - delete these, they need to be auto-generated -->
+                <!-- <div class="media text-muted pt-3">
+                    <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <div class="d-flex justify-content-between align-items-center w-100">
+                            <strong class="text-gray-dark">Ricky Bobby</strong>
+                            <span>A month ago</span>
+                        </div>
+                        <span class="d-block">Shake & Bake!</span>
+                    </div>
+                </div> -->
+
+            </div>
+
+            <!-- Chat input section -->
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Say hi!" aria-label="Chat" aria-describedby="Chat" id='message'>
+                <div class="input-group-append">
+                    <span>
+                        <button class="input-group-text btn btn-primary" id='message-button'>Send</button>
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Script Links -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.8.1/firebase.js"></script>
+    <script src='assets/javascript/index.js'></script>
+</body>
+
+</html>

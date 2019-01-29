@@ -1,0 +1,35 @@
+header {
+    padding: 20px;
+    background: whitesmoke;
+    color: auto;
+    margin-bottom: 40px;
+    border-bottom: 1px lightgray solid;
+}
+
+.card {
+    margin-top: 10px;
+}
+
+.card-footer {
+    background: inherit;
+}
+
+.body {
+    background: whitesmoke;
+    margin-bottom: 40px;
+    border-bottom: 2px lightgray solid;
+    border-right: 2px lightgray solid;
+}
+
+.input-group {
+    margin-top: 10px;
+}
+
+#sign-in {
+    height: 100vw;
+    width: 100vw;
+    position: fixed;
+    z-index: 100;
+    background: white;
+    padding-top: 200px;
+}
