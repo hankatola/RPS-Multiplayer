@@ -11,20 +11,30 @@ $(document).ready(function(){
         messagingSenderId: "187637970919"
     };
     firebase.initializeApp(config);
+    var db = firebase.database()
+    var active = db.ref("/connections")
+    var connected = db.ref(".info/connected")
 
-    var player = {
+    var opponent, player = {
         name: '',
-        wins: '',
-        lost: '',
+        wins: 0,
+        lost: 0,
+        id: Math.floor(Math.random()*Math.pow(10,16)),
     }
 
-    function commentCard(i) {
-        // makes comments in the comment section
-        // TODO: fix username, time, and comment text
-        let user = $('<strong>').text('Ricky Bobby' + i)
+
+
+
+    /*
+        Function Farm
+    */
+
+    // makes comments in the comment section
+    function commentCard(name,message,t) {
+        let user = $('<strong>').text(name)
         user.addClass('text-gray-dark')
-        let time = $('<span>').text('yesterday')
-        let text = $('<span>').text('Shake & Bake!')
+        let time = $('<span>').text(t)
+        let text = $('<span>').text(message)
         let a = $('<div>').addClass('d-flex justify-content-between align-items-center w-100')
         let b = $('<div>').addClass('media-body pb-3 mb-0 small lh-125 border-bottom border-gray')
         let c = $('<div>').addClass('media text-muted pt-3')
@@ -33,17 +43,73 @@ $(document).ready(function(){
         a.appendTo(b)
         b.append(text)
         b.appendTo(c)
-        console.log(c)
-        return c
+        let cw = $('#chat-window')
+        cw.append(c)
     }
 
-    function rps(α,β) {
-
+    function findOpponent(x) {
+        if (player.opponentID === 0) {
+            for (let i in x.val()) {
+                let y = x.val()[i]
+            }
+        }
     }
 
-    // commentCard test
-    $('#chat-window').empty()
-    for (let i = 0; i < 20; i++) {
-        $('#chat-window').append(commentCard(i))
-    }
+
+    /*
+        Event Listeners
+    */
+
+    // login page listener
+    $(document).on('click','#user-name-button',function(ε) {
+        ε.preventDefault()
+        player.name = $('#user-name').val().trim()
+        $('#modal-message').text('Welcome ' + player.name + '!')
+        $('#welcome-modal').modal('toggle')
+        $('#sign-in').hide()
+        db.ref('users').child(player.id).child('name').set(player.name)
+        db.ref('users').child(player.id).child('opponentID').set(false)
+
+    })
+
+    // listener for connection state
+    connected.on('value',function(α) {
+        // add record that this user is online
+        if (α.val()) {
+            let id = player.id
+            let c = active.push(id)
+            c.onDisconnect().remove()
+            db.ref('users').child(id).set({
+                name: player.name,
+                won: 0,
+                lost: 0,
+                time: firebase.database.ServerValue.TIMESTAMP
+            })
+        }
+    })
+
+    // chat button listener
+    $(document).on('click','#message-button',function(ε) {
+        ε.preventDefault()
+        let message = $('#message').val().trim()
+        db.ref('chat').push({
+            name: player.name,
+            message: message,
+            time: firebase.database.ServerValue.TIMESTAMP,
+        })
+        $('#message').val('')
+    })
+
+    // chat database update listener
+    db.ref('chat').on('child_added',function(ε) {
+        let name = ε.val().name
+        let message = ε.val().message
+        let time = ε.val().time
+        time = moment(time).format('MMM D, YYYY h:mm a')
+        commentCard(name,message,time)
+        let cw = $('#chat-window')
+        var height = cw[0].scrollHeight;
+        cw.scrollTop(height);
+
+    })
 })
