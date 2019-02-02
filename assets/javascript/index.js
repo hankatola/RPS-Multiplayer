@@ -1,6 +1,10 @@
 $(document).ready(function(){
+
+
+
     /*
         Initialize Firebase
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
     */
     var config = {
         apiKey: "AIzaSyBknjX2o3AQCT_E5xADzK9sH7QknFBxKpE",
@@ -15,6 +19,20 @@ $(document).ready(function(){
     var active = db.ref("/connections")
     var connected = db.ref(".info/connected")
 
+
+
+
+
+
+
+
+
+
+    /*
+        Global Variables
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    */
+
     var opponent, player = {
         name: '',
         wins: 0,
@@ -25,11 +43,81 @@ $(document).ready(function(){
 
 
 
+
+
+
+
+
     /*
         Function Farm
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
     */
 
-    // makes comments in the comment section
+    //
+    //    Login functions
+    //
+
+    // (1) adds user record to 'connections' & 'users' branches
+    function recordOnline(α) {
+        // add record that this user is online
+        if (α.val()) {
+            let id = player.id
+            let c = active.push(id)
+            
+            c.onDisconnect().remove()
+            db.ref('users').child(id).set({
+                name: player.name,
+                won: 0,
+                lost: 0,
+                time: firebase.database.ServerValue.TIMESTAMP
+            })
+
+        }
+    }
+
+    // (2) login & update user record w/ user name
+    function login(ε) {
+        ε.preventDefault()
+        player.name = $('#user-name').val().trim()
+        $('#modal-message').text('Welcome ' + player.name + '!')
+        $('#welcome-modal').modal('toggle')
+        $('#sign-in').hide()
+        db.ref('users').child(player.id).child('name').set(player.name)
+        db.ref('users').child(player.id).child('opponentID').set(false)
+
+    }
+
+
+    //
+    //  Chat functions
+    //
+
+    // (1) sends chat message to db & resets field
+    function sendChatMessage(ε) {
+        ε.preventDefault()
+        let message = $('#message').val().trim()
+        db.ref('chat').push({
+            name: player.name,
+            message: message,
+            time: firebase.database.ServerValue.TIMESTAMP,
+        })
+        $('#message').val('')
+    }
+
+    // (2) displays chat messages in db
+    function displayChatMessage(ε) {
+        let name = ε.val().name
+        let message = ε.val().message
+        let time = ε.val().time
+        time = moment(time).format('MMM D, YYYY h:mm a')
+        commentCard(name,message,time)
+        let cw = $('#chat-window')
+        var height = cw[0].scrollHeight;
+        cw.scrollTop(height);
+
+    }
+
+    // (3) makes comments in the comment section
     function commentCard(name,message,t) {
         let user = $('<strong>').text(name)
         user.addClass('text-gray-dark')
@@ -47,69 +135,28 @@ $(document).ready(function(){
         cw.append(c)
     }
 
-    function findOpponent(x) {
-        if (player.opponentID === 0) {
-            for (let i in x.val()) {
-                let y = x.val()[i]
-            }
-        }
-    }
+
+
+
+
+
+
 
 
     /*
         Event Listeners
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
     */
 
     // login page listener
-    $(document).on('click','#user-name-button',function(ε) {
-        ε.preventDefault()
-        player.name = $('#user-name').val().trim()
-        $('#modal-message').text('Welcome ' + player.name + '!')
-        $('#welcome-modal').modal('toggle')
-        $('#sign-in').hide()
-        db.ref('users').child(player.id).child('name').set(player.name)
-        db.ref('users').child(player.id).child('opponentID').set(false)
-
-    })
+    $(document).on('click','#user-name-button',login)
 
     // listener for connection state
-    connected.on('value',function(α) {
-        // add record that this user is online
-        if (α.val()) {
-            let id = player.id
-            let c = active.push(id)
-            c.onDisconnect().remove()
-            db.ref('users').child(id).set({
-                name: player.name,
-                won: 0,
-                lost: 0,
-                time: firebase.database.ServerValue.TIMESTAMP
-            })
-        }
-    })
+    connected.on('value',recordOnline)
 
     // chat button listener
-    $(document).on('click','#message-button',function(ε) {
-        ε.preventDefault()
-        let message = $('#message').val().trim()
-        db.ref('chat').push({
-            name: player.name,
-            message: message,
-            time: firebase.database.ServerValue.TIMESTAMP,
-        })
-        $('#message').val('')
-    })
+    $(document).on('click','#message-button',sendChatMessage)
 
     // chat database update listener
-    db.ref('chat').on('child_added',function(ε) {
-        let name = ε.val().name
-        let message = ε.val().message
-        let time = ε.val().time
-        time = moment(time).format('MMM D, YYYY h:mm a')
-        commentCard(name,message,time)
-        let cw = $('#chat-window')
-        var height = cw[0].scrollHeight;
-        cw.scrollTop(height);
-
-    })
+    db.ref('chat').on('child_added',displayChatMessage)
 })
