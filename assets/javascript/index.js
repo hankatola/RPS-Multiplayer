@@ -19,34 +19,24 @@ $(document).ready(function(){
     var active = db.ref("/connections")
     var connected = db.ref(".info/connected")
 
-
-
-
-
-
-
-
-
-
     /*
         Global Variables
         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
     */
 
-    var opponent, player = {
+    var player = {
         name: '',
         wins: 0,
         lost: 0,
+        gameid: false,
         id: Math.floor(Math.random()*Math.pow(10,16)),
     }
-
-
-
-
-
-
-
-
+    var opp = {
+        name: '',
+        wins: 0,
+        lost: 0,
+        id: false
+    }
 
     /*
         Function Farm
@@ -62,16 +52,18 @@ $(document).ready(function(){
         // add record that this user is online
         if (α.val()) {
             let id = player.id
-            let c = active.push(id)
-            
+            let c = active.push({
+                id:id,
+            })
             c.onDisconnect().remove()
             db.ref('users').child(id).set({
                 name: player.name,
+                available: true,
                 won: 0,
                 lost: 0,
+                gameid: '',
                 time: firebase.database.ServerValue.TIMESTAMP
             })
-
         }
     }
 
@@ -83,10 +75,63 @@ $(document).ready(function(){
         $('#welcome-modal').modal('toggle')
         $('#sign-in').hide()
         db.ref('users').child(player.id).child('name').set(player.name)
-        db.ref('users').child(player.id).child('opponentID').set(false)
-
     }
 
+    // (3) find opponent
+    function findOpponent(ε) {
+        let online = [], players = {}
+        if (opp.id > 0) {
+            return
+        }
+        // get online player list (online)
+        db.ref('connections').once('value',function(α){
+            // console.log(α.val())
+            for (let i in α.val()) {
+                online.push(α.val()[i].id)
+                // if (α.val()[i].id !== player.id) {
+                //     opp.id = α.val()[i].id
+                // }
+            }
+        }).then(
+            // get user list
+            db.ref('users').once('value',function(α){
+                for (let i in α.val()) {
+                    players[i] = α.val()[i]
+                }
+            }).then(function(){
+                // determine/find opponent
+                // If we have an opponent, and they are on the list, return - we con't care
+                // we also don't care if there is only one player online
+                if ((!opp.id && online.indexOf(opp.id) >= 0) || online.length === 1) {
+                    return
+                } else {
+                    if (players[player.id].available === false) {
+                    // mark yourself available if you're marked as not available
+                    db.ref('users').child(player.id).child('available').set(true)
+                    }
+                    // find an opponent
+                    for (let i in online) {
+                        // online[i] is an id
+                        if (online[i] !== player.id && players[online[i]].available === true) {
+                            // this is our new opponent
+                            opp.id = online[i]
+                            db.ref('users').child(opp.id).child('available').set(false)
+                            console.log('my id: ' + player.id)
+                            console.log("my opponent's id: " + opp.id)
+                        }
+                    }
+                }
+            })
+        )
+    }
+
+    function disconnect() {
+        db.ref('chat').push({
+            message: 'Disconnected',
+            time: firebase.database.ServerValue.TIMESTAMP,
+        })
+
+    }
 
     //
     //  Chat functions
@@ -135,13 +180,14 @@ $(document).ready(function(){
         cw.append(c)
     }
 
-
-
-
-
-
-
-
+    //
+    //  Chat functions
+    //
+    function sendRps() {
+        let choice = $(this).attr('id')
+        console.log(choice)
+        db.ref('game').child(player.id)
+    }
 
     /*
         Event Listeners
@@ -154,9 +200,16 @@ $(document).ready(function(){
     // listener for connection state
     connected.on('value',recordOnline)
 
+    active.on('value',findOpponent)
+
     // chat button listener
     $(document).on('click','#message-button',sendChatMessage)
 
     // chat database update listener
     db.ref('chat').on('child_added',displayChatMessage)
+
+    // user update listener - finds opponent
+    db.ref('users').on('child_added',findOpponent)
+
+    $(document).on('click','.btn-lg',sendRps)
 })
