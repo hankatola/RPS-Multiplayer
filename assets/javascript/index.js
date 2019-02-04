@@ -213,30 +213,6 @@ $(document).ready(function(){
             if (α === β) {
                 result = 0
             }
-            // if (α === 'rock') {
-            //     if (β === 'scissors') {
-            //         result = 1
-            //     } else {
-            //         result = -1
-            //     }
-            // }
-            // if (α === 'scissors') {
-            //     if (β === 'paper') {
-            //         result = 1
-            //     } else {
-            //         result = -1
-            //     }
-            // }
-            // if (α === 'paper') {
-            //     if (β === 'rock') {
-            //         result = 1
-            //     } else {
-            //         result = -1
-            //     }
-            // }
-            // if (α === β) {
-            //     result = 0
-            // }
             return result
         }
         let game = α.val()[player.gameid]
@@ -252,6 +228,7 @@ $(document).ready(function(){
         if (me && them) {
             // game is over, both have chosen, determine winner
             outcome = determineWinner(me,them)
+            $('#exampleModalLabel').text('Results')
             if (outcome > 0) {
                 // victory! - post the victory to chat
                 player.wins++
@@ -261,11 +238,16 @@ $(document).ready(function(){
                     message: me + ' beats ' + them + ", so I beat " + opp.name + '!',
                     time: firebase.database.ServerValue.TIMESTAMP,
                 })
-                    }
+                $('#welcome-modal').modal('toggle')
+                $('#modal-message').text('You Won!')
+
+            }
             if (outcome < 0) {
                 // defeat! - the opponent will post to chat
                 player.lost++
                 db.ref('users').child(player.id).child('lost').set(player.lost)
+                $('#welcome-modal').modal('toggle')
+                $('#modal-message').text(opp.name + ' chose ' + them + ' and you lost!')
             }
             if (outcome === 0) {
                 // tie! - whoever's id is smaller will post the tie to chat
@@ -276,6 +258,8 @@ $(document).ready(function(){
                         time: firebase.database.ServerValue.TIMESTAMP,
                     })
                 }
+                $('#welcome-modal').modal('toggle')
+                $('#modal-message').text('You tied!')
             }
             gameNum++
             player.gameid = player.gameid.substring(0,30) + gameNum.toString()
